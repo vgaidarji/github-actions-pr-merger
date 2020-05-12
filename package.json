@@ -1,0 +1,26 @@
+{
+  "name": "github-actions-pr-merger",
+  "version": "1.0.0",
+  "description": "A GitHub Action which helps automating Pull Request merge routine",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vgaidarji/github-actions-pr-merger.git"
+  },
+  "keywords": [],
+  "author": "Veaceslav Gaidarji <veaceslav.gaidarji@gmail.com>",
+  "license": "Apache-2.0",
+  "licenses": [
+    {
+      "type": "Apache-2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0"
+    }
+  ],
+  "bugs": {
+    "url": "https://github.com/vgaidarji/github-actions-pr-merger/issues"
+  },
+  "homepage": "https://github.com/vgaidarji/github-actions-pr-merger#readme"
+}
