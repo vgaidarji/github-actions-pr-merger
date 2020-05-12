@@ -1,0 +1,9 @@
+name: 'Pull Request Merger'
+description: 'A GitHub Action which helps automating Pull Request merge routine'
+author: 'Veaceslav Gaidarji <veaceslav.gaidarji@gmail.com>'
+branding:
+  icon: 'git-merge'
+  color: 'green'
+runs:
+  using: 'node12'
+  main: 'index.js'
