@@ -4,7 +4,7 @@
   "description": "A GitHub Action which helps automating Pull Request merge routine",
   "main": "index.js",
   "scripts": {
-    "test": "jest",
+    "test": "jest --coverage",
     "lint": "eslint src/ test/",
     "package": "ncc build src/index.js -o dist"
   },
