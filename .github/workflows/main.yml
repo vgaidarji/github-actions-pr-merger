@@ -19,3 +19,8 @@ jobs:
       run: npm ci
     - name: Package with ncc
       run: npm run package
+    - name: Archive distribution package
+      uses: actions/upload-artifact@v1
+      with:
+        name: index.js
+        path: dist/index.js
