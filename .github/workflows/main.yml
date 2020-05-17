@@ -1,0 +1,25 @@
+name: "Build & test"
+on: [pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: npm CI
+      run: npm ci
+    - name: Unit tests
+      run: npm test
+    - name: ESLint
+      uses: reviewdog/action-eslint@v1
+      with:
+        github_token: ${{ secrets.GITHUB_ACCESS_TOKEN }}
+        reporter: github-pr-review
+        eslint_flags: '.'
+  package:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: npm CI
+      run: npm ci
+    - name: Package with ncc
+      run: npm run package
