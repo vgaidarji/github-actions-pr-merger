@@ -1,0 +1,26 @@
+name: "Build & test"
+on: [pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: npm CI
+      run: npm ci
+    - name: Unit tests
+      run: npm test
+    - name: ESLint
+      run: npm run lint
+  package:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: npm CI
+      run: npm ci
+    - name: Package with ncc
+      run: npm run package
+    - name: Archive distribution package
+      uses: actions/upload-artifact@v1
+      with:
+        name: index.js
+        path: dist/index.js
