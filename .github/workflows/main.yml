@@ -10,11 +10,7 @@ jobs:
     - name: Unit tests
       run: npm test
     - name: ESLint
-      uses: reviewdog/action-eslint@v1
-      with:
-        github_token: ${{ secrets.GITHUB_ACCESS_TOKEN }}
-        reporter: github-pr-review
-        eslint_flags: 'src/ test/'
+      run: npm run lint
   package:
     runs-on: ubuntu-latest
     steps:
