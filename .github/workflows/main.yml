@@ -14,7 +14,7 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_ACCESS_TOKEN }}
         reporter: github-pr-review
-        eslint_flags: '.'
+        eslint_flags: 'src/ test/'
   package:
     runs-on: ubuntu-latest
     steps:
