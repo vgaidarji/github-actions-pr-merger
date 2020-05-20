@@ -16,5 +16,6 @@
         "ecmaVersion": 2020
     },
     "rules": {
+      "require-jsdoc": "off"
     }
 }

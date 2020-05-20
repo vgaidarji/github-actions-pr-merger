@@ -2,7 +2,7 @@
   "name": "github-actions-pr-merger",
   "version": "1.0.0",
   "description": "A GitHub Action which helps automating Pull Request merge routine",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
     "test": "jest --coverage",
     "lint": "eslint src/ test/",

@@ -1,0 +1,13 @@
+name: "Perform dry-run merge"
+on: [pull_request]
+jobs:
+  merge-dry-run:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: npm CI
+      run: npm ci
+    - name: Perform dry-run merge
+      uses: ./
+      with:
+          dry-run: true
