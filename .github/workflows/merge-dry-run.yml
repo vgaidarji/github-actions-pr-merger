@@ -1,5 +1,5 @@
 name: "Perform dry-run merge"
-on: [pull_request]
+on: [pull_request, issue_comment]
 jobs:
   merge-dry-run:
     runs-on: ubuntu-latest
