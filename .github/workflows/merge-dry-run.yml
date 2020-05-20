@@ -1,4 +1,4 @@
-name: "Perform dry-run merge"
+name: "Dry-run merge"
 on: [pull_request, issue_comment]
 jobs:
   merge-dry-run:
