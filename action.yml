@@ -4,6 +4,11 @@ author: 'Veaceslav Gaidarji <veaceslav.gaidarji@gmail.com>'
 branding:
   icon: 'git-merge'
   color: 'green'
+inputs:
+  dry-run:
+    description: 'Performs dry-run merge and posts back merge results message in Pull Request'
+    required: false
+    default: false
 runs:
   using: 'node12'
   main: 'src/index.js'
