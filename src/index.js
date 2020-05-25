@@ -13,7 +13,7 @@ try {
 
   const actionConfig = new ActionConfig(core);
   if (actionConfig.isDryRun) {
-    console.log('is dry run = true');
+    console.log(`is dry run = ${actionConfig.isDryRun}`);
   }
 } catch (error) {
   core.setFailed(error.message);

@@ -1,5 +1,7 @@
 name: "Dry-run merge"
-on: [pull_request, issue_comment]
+on:
+  issue_comment:
+    types: created
 jobs:
   merge-dry-run:
     runs-on: ubuntu-latest
