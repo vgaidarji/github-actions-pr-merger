@@ -1,7 +1,8 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
-
 const ActionConfig = require('./config/action-config');
+
+const octokit = new Octokit();
 
 try {
   const githubPayload = github.context.payload
