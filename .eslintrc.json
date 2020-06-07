@@ -16,6 +16,14 @@
         "ecmaVersion": 2020
     },
     "rules": {
-      "require-jsdoc": "off"
+      "require-jsdoc": "off",
+      "max-len": [
+        "error",
+        {
+          "code": 100,
+          "tabWidth": 2,
+          "ignorePattern": "require"
+        }
+      ]
     }
 }
