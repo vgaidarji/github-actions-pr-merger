@@ -2,7 +2,8 @@ const core = require('@actions/core');
 const github = require('@actions/github');
 const ActionConfig = require('./config/action-config');
 
-const octokit = new Octokit();
+const {GITHUB_TOKEN} = process.env;
+const octokit = github.getOctokit(GITHUB_TOKEN);
 
 try {
   const githubPayload = github.context.payload;
