@@ -3,11 +3,12 @@ const github = require('@actions/github');
 const ActionConfig = require('./config/action-config');
 
 const {GITHUB_TOKEN} = process.env;
+const {context: githubContext} = github;
+
 const octokit = github.getOctokit(GITHUB_TOKEN);
 
 try {
-  const githubPayload = github.context.payload;
-  console.log(`payload: ${JSON.stringify(github.context.payload)}`);
+  console.log(`payload: ${JSON.stringify(githubContext.payload)}`);
 
   if (github.event_name === 'issue_comment' &&
       github.event.action == 'created') {
@@ -17,7 +18,7 @@ try {
   const actionConfig = new ActionConfig(core);
   if (actionConfig.isDryRun) {
     console.log(`is dry run = ${actionConfig.isDryRun}`);
-    const {owner, repo, number} = github.context.issue;
+    const {owner, repo, number} = githubContext.issue;
     const comment = async () => {
       const {data: comment} = await octokit.issues.createComment({
         owner: owner,
@@ -27,7 +28,7 @@ try {
       });
       return comment;
     };
-    core.info(`Created comment id '${comment.id}' on issue '${githubPayload.issue.id}'.`);
+    core.info(`Created comment id '${comment}' on issue '${githubContext.issue.id}'.`);
   }
 } catch (error) {
   core.setFailed(error.message);
