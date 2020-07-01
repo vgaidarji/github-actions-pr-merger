@@ -17,7 +17,7 @@ try {
   const actionConfig = new ActionConfig(core);
   if (actionConfig.isDryRun) {
     console.log(`is dry run = ${actionConfig.isDryRun}`);
-    const {owner, repo, number} = githubPayload.issue;
+    const {owner, repo, number} = github.context.issue;
     const comment = async () => {
       const {data: comment} = await octokit.issues.createComment({
         owner: owner,
