@@ -12,9 +12,11 @@ try {
   const pullRequest = new PullRequest(githubContext.payload);
   console.log(`payload: ${JSON.stringify(githubContext.payload)}`);
 
-  if (github.event_name === 'issue_comment' &&
-      github.event.action == 'created') {
-    console.log(`comment: ${github.event.comment.body}`);
+  const isComment = 'comment' in githubContext.payload;
+  // const isPullRequest = 'pull_request' in githubContext.payload;
+
+  if (isComment && githubContext.payload.action == 'created') {
+    console.log(`comment: ${githubContext.payload.comment.body}`);
   }
 
   const actionConfig = new ActionConfig(core);
