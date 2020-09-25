@@ -21,16 +21,17 @@ try {
     const owner = githubContext.payload.repository.owner.login;
     const repo = githubContext.payload.repository.name;
     const number = githubContext.payload.pull_request.number;
-    const comment = async () => {
+    const postComment = async () => {
       const {data: comment} = await octokit.issues.createComment({
         owner: owner,
         repo: repo,
         issue_number: number,
         body: 'dry-run test merge commit message',
       });
+      console.log(`Created comment '${comment.body}' on issue '${number}'.`);
       return comment;
     };
-    core.info(`Created comment id '${comment}' on issue '${number}'.`);
+    postComment();
   }
 } catch (error) {
   core.setFailed(error.message);
