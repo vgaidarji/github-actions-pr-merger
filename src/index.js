@@ -9,7 +9,6 @@ const {context: githubContext} = github;
 const octokit = github.getOctokit(GITHUB_TOKEN);
 
 try {
-  const pullRequest = new PullRequest(githubContext.payload);
   console.log(`payload: ${JSON.stringify(githubContext.payload)}`);
 
   const isComment = 'comment' in githubContext.payload;
@@ -23,6 +22,7 @@ try {
   if (actionConfig.isDryRun) {
     console.log(`is dry run = ${actionConfig.isDryRun}`);
     if (isPullRequest) {
+      const pullRequest = new PullRequest(githubContext.payload);
       const postComment = async () => {
         const {data: comment} = await octokit.issues.createComment({
           owner: pullRequest.owner,
