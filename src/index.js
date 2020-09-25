@@ -28,7 +28,7 @@ try {
       });
       return comment;
     };
-    core.info(`Created comment id '${comment}' on issue '${githubContext.issue.id}'.`);
+    core.info(`Created comment id '${comment}' on issue '${number}'.`);
   }
 } catch (error) {
   core.setFailed(error.message);
