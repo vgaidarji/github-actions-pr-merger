@@ -1,5 +1,6 @@
 name: "Dry-run merge"
 on:
+  pull_request:
   issue_comment:
     types: created
 jobs:
@@ -11,5 +12,7 @@ jobs:
       run: npm ci
     - name: Perform dry-run merge
       uses: ./
+      env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
       with:
           dry-run: true
