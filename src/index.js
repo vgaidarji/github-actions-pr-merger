@@ -8,6 +8,8 @@ const {context: githubContext} = github;
 
 const octokit = github.getOctokit(GITHUB_TOKEN);
 
+const ROBIN_COMMAND = '/Robin';
+
 // on PR
 // on comment with command `/Robin squash-merge` or `/Robin rebase-merge`
 // check mergeability & return early otherwise
@@ -28,6 +30,14 @@ try {
 
   if (isComment && githubContext.payload.action == 'created') {
     console.log(`comment: ${githubContext.payload.comment.body}`);
+    if (githubContext.payload.comment.body.includes(ROBIN_COMMAND)) {
+      console.log(`Triggered via ${ROBIN_COMMAND} command.`);
+    } else {
+      console.log(
+          `Robin helps only when he has been explicitly asked via \`/Robin\` command.
+          See https://github.com/vgaidarji/github-actions-pr-merger/tree/master#usage.`);
+      return;
+    }
   }
 
   const actionConfig = new ActionConfig(core);
