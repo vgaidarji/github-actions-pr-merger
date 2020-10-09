@@ -8,6 +8,18 @@ const {context: githubContext} = github;
 
 const octokit = github.getOctokit(GITHUB_TOKEN);
 
+// on PR
+// on comment with command `/Robin squash-merge` or `/Robin rebase-merge`
+// check mergeability & return early otherwise
+// check all PR checks are passing & return early otherwise
+// get list of commits
+// get approvers list
+// use PR title as 1 line
+// find Jira ticket ID from PR description
+// use template file to form final merge commit message
+// perform merge
+// remove source branch
+
 try {
   console.log(`payload: ${JSON.stringify(githubContext.payload)}`);
 
