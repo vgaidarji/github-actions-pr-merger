@@ -23,6 +23,7 @@ const ROBIN_COMMAND = '/Robin';
 // remove source branch
 
 try {
+  console.log('Test if project changes in dry-run mode are using PR branch code and not master.');
   console.log(`payload: ${JSON.stringify(githubContext.payload)}`);
 
   const isComment = 'comment' in githubContext.payload;
