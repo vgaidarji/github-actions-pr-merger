@@ -1,6 +1,5 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
-const ActionConfig = require('./config/action-config');
 const PullRequest = require('./github/pull-request');
 
 const {GITHUB_TOKEN} = process.env;
@@ -9,6 +8,7 @@ const {context: githubContext} = github;
 const octokit = github.getOctokit(GITHUB_TOKEN);
 
 const ROBIN_COMMAND = '/Robin';
+const HAS_DRY_RUN_FLAG = '--dry-run';
 
 // on PR
 // on comment with command `/Robin squash-merge` or `/Robin rebase-merge`
@@ -29,35 +29,34 @@ try {
   const isPullRequest = 'pull_request' in githubContext.payload;
 
   if (isComment && githubContext.payload.action == 'created') {
-    console.log(`comment: ${githubContext.payload.comment.body}`);
-    if (githubContext.payload.comment.body.includes(ROBIN_COMMAND)) {
+    const commentBody = githubContext.payload.comment.body;
+    console.log(`comment: ${commentBody}`);
+
+    if (commentBody.includes(ROBIN_COMMAND)) {
       console.log(`Triggered via ${ROBIN_COMMAND} command.`);
+
+      const isDryRunMode = commentBody.includes(HAS_DRY_RUN_FLAG);
+      console.log(`is dry run = ${isDryRunMode}`);
+
+      if (isPullRequest && isDryRunMode) {
+        const pullRequest = new PullRequest(githubContext.payload);
+        const postComment = async () => {
+          const {data: comment} = await octokit.issues.createComment({
+            owner: pullRequest.owner,
+            repo: pullRequest.repo,
+            issue_number: pullRequest.number,
+            body: 'dry-run test merge commit message',
+          });
+          console.log(`Created comment '${comment.body}' on issue '${pullRequest.number}'.`);
+          return comment;
+        };
+        postComment();
+      }
     } else {
       console.log(
           `Robin helps only when he has been explicitly asked via \`/Robin\` command.
           See https://github.com/vgaidarji/github-actions-pr-merger/tree/master#usage.`);
       return;
-    }
-  }
-
-  const actionConfig = new ActionConfig(core);
-  if (actionConfig.isDryRun) {
-    console.log(`is dry run = ${actionConfig.isDryRun}`);
-    if (isPullRequest) {
-      const pullRequest = new PullRequest(githubContext.payload);
-      const postComment = async () => {
-        const {data: comment} = await octokit.issues.createComment({
-          owner: pullRequest.owner,
-          repo: pullRequest.repo,
-          issue_number: pullRequest.number,
-          body: 'dry-run test merge commit message',
-        });
-        console.log(`Created comment '${comment.body}' on issue '${pullRequest.number}'.`);
-        return comment;
-      };
-      postComment();
-    } else if (isComment) {
-      // pull request properties (owner, repo, number) should be extracted differently
     }
   }
 } catch (error) {
