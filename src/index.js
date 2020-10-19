@@ -27,15 +27,16 @@ try {
 
   const isComment = 'comment' in githubContext.payload;
   const isPullRequest = 'pull_request' in githubContext.payload;
+  const isCommentCreatedAction = isComment && githubContext.payload.action == 'created';
 
-  if (isComment && githubContext.payload.action == 'created') {
+  if (isCommentCreatedAction) {
     const commentBody = githubContext.payload.comment.body;
+    const isTriggeredViaRobinCommand = commentBody.includes(ROBIN_COMMAND);
+    const isDryRunMode = commentBody.includes(HAS_DRY_RUN_FLAG);
     console.log(`comment: ${commentBody}`);
 
-    if (commentBody.includes(ROBIN_COMMAND)) {
+    if (isTriggeredViaRobinCommand) {
       console.log(`Triggered via ${ROBIN_COMMAND} command.`);
-
-      const isDryRunMode = commentBody.includes(HAS_DRY_RUN_FLAG);
       console.log(`is dry run = ${isDryRunMode}`);
 
       if (isPullRequest && isDryRunMode) {
