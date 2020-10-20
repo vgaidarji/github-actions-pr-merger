@@ -26,11 +26,13 @@ try {
   console.log(`payload: ${JSON.stringify(githubContext.payload)}`);
 
   const isComment = 'comment' in githubContext.payload;
+  // TODO: extract pull_request from 'issue' property from comment payload
   const isPullRequest = 'pull_request' in githubContext.payload;
   const isCommentCreatedAction = isComment && githubContext.payload.action == 'created';
 
   if (isCommentCreatedAction) {
     const commentBody = githubContext.payload.comment.body;
+    // TODO: extract into a func with proper format check and not only for robin keyword
     const isTriggeredViaRobinCommand = commentBody.includes(ROBIN_COMMAND);
     const isDryRunMode = commentBody.includes(HAS_DRY_RUN_FLAG);
     console.log(`comment: ${commentBody}`);
