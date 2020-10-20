@@ -1,0 +1,17 @@
+name: "Action CI (triggered via comment on PRs)"
+# post a comment on open PR with dry run parameter to perform sanity check for action on new PR
+# see https://github.com/vgaidarji/github-actions-pr-merger#usage for dry-run command format
+on:
+  issue_comment:
+    types: created
+jobs:
+  merge-dry-run:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: npm CI
+      run: npm ci
+    - name: Execute action
+      uses: ./
+      env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
