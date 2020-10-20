@@ -58,7 +58,7 @@ try {
     } else {
       console.log(
           `Robin helps only when he has been explicitly asked via \`/Robin\` command.
-          See https://github.com/vgaidarji/github-actions-pr-merger/tree/master#usage.`);
+          See https://github.com/vgaidarji/github-actions-pr-merger/tree/master#usage`);
       return;
     }
   }
