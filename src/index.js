@@ -7,11 +7,11 @@ const {context: githubContext} = github;
 
 const octokit = github.getOctokit(GITHUB_TOKEN);
 
-const ROBIN_COMMAND = '/Robin';
+const ROBIN_COMMAND = '/robin';
 const HAS_DRY_RUN_FLAG = '--dry-run';
 
 // on PR
-// on comment with command `/Robin squash-merge` or `/Robin rebase-merge`
+// on comment with command `/robin squash-merge` or `/robin rebase-merge`
 // check mergeability & return early otherwise
 // check all PR checks are passing & return early otherwise
 // get list of commits
@@ -33,7 +33,8 @@ try {
   if (isCommentCreatedAction) {
     const commentBody = githubContext.payload.comment.body;
     // TODO: extract into a func with proper format check and not only for robin keyword
-    const isTriggeredViaRobinCommand = commentBody.includes(ROBIN_COMMAND);
+    const isTriggeredViaRobinCommand =
+      commentBody.toLowerCase().includes(ROBIN_COMMAND.toLowerCase());
     const isDryRunMode = commentBody.includes(HAS_DRY_RUN_FLAG);
     console.log(`comment: ${commentBody}`);
 
@@ -57,7 +58,7 @@ try {
       }
     } else {
       console.log(
-          `Robin helps only when he has been explicitly asked via \`/Robin\` command.
+          `Robin helps only when he has been explicitly asked via \`/robin\` command.
           See https://github.com/vgaidarji/github-actions-pr-merger/tree/master#usage`);
       return;
     }
