@@ -5,7 +5,7 @@ on:
   issue_comment:
     types: created
 jobs:
-  merge-dry-run:
+  execute-action-on-comment:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
