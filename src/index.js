@@ -1,14 +1,12 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
 const PullRequest = require('./github/pull-request');
+const RobinCommand = require('./robin/robin-command');
 
 const {GITHUB_TOKEN} = process.env;
 const {context: githubContext} = github;
 
 const octokit = github.getOctokit(GITHUB_TOKEN);
-
-const ROBIN_COMMAND = '/robin';
-const HAS_DRY_RUN_FLAG = '--dry-run';
 
 // on PR
 // on comment with command `/robin squash-merge` or `/robin rebase-merge`
@@ -24,7 +22,9 @@ const HAS_DRY_RUN_FLAG = '--dry-run';
 
 const main = async () => {
   try {
-    console.log(`payload: ${JSON.stringify(githubContext.payload)}`);
+    console.groupCollapsed('GitHub event payload ' + '\u21B5');
+    console.log(`${JSON.stringify(githubContext.payload)}`);
+    console.groupEnd();
 
     const isComment = 'comment' in githubContext.payload;
     // TODO: extract pull_request from 'issue' property from comment payload
@@ -33,17 +33,11 @@ const main = async () => {
 
     if (isCommentCreatedAction) {
       const commentBody = githubContext.payload.comment.body;
-      // TODO: extract into a func with proper format check and not only for robin keyword
-      const isTriggeredViaRobinCommand =
-        commentBody.toLowerCase().includes(ROBIN_COMMAND.toLowerCase());
-      const isDryRunMode = commentBody.includes(HAS_DRY_RUN_FLAG);
+      const robinCommand = new RobinCommand(commentBody);
       console.log(`comment: ${commentBody}`);
 
-      if (isTriggeredViaRobinCommand) {
-        console.log(`Triggered via ${ROBIN_COMMAND} command.`);
-        console.log(`is dry run = ${isDryRunMode}`);
-
-        if (isPullRequest && isDryRunMode) {
+      if (robinCommand.isRobinCommand()) {
+        if (isPullRequest && robinCommand.isDryRunMode()) {
           const pullRequest = new PullRequest(githubContext.payload);
           const {data: comment} = await octokit.issues.createComment({
             owner: pullRequest.owner,
