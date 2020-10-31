@@ -1,14 +1,12 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
 const PullRequest = require('./github/pull-request');
+const RobinCommand = require('./robin/robin-command');
 
 const {GITHUB_TOKEN} = process.env;
 const {context: githubContext} = github;
 
 const octokit = github.getOctokit(GITHUB_TOKEN);
-
-const ROBIN_COMMAND = '/robin';
-const HAS_DRY_RUN_FLAG = '--dry-run';
 
 // on PR
 // on comment with command `/robin squash-merge` or `/robin rebase-merge`
@@ -22,29 +20,25 @@ const HAS_DRY_RUN_FLAG = '--dry-run';
 // perform merge
 // remove source branch
 
-try {
-  console.log(`payload: ${JSON.stringify(githubContext.payload)}`);
+const main = async () => {
+  try {
+    console.groupCollapsed('GitHub event payload ' + '\u21B5');
+    console.log(`${JSON.stringify(githubContext.payload)}`);
+    console.groupEnd();
 
-  const isComment = 'comment' in githubContext.payload;
-  // TODO: extract pull_request from 'issue' property from comment payload
-  const isPullRequest = 'pull_request' in githubContext.payload;
-  const isCommentCreatedAction = isComment && githubContext.payload.action == 'created';
+    const isComment = 'comment' in githubContext.payload;
+    // TODO: extract pull_request from 'issue' property from comment payload
+    const isPullRequest = 'pull_request' in githubContext.payload;
+    const isCommentCreatedAction = isComment && githubContext.payload.action == 'created';
 
-  if (isCommentCreatedAction) {
-    const commentBody = githubContext.payload.comment.body;
-    // TODO: extract into a func with proper format check and not only for robin keyword
-    const isTriggeredViaRobinCommand =
-      commentBody.toLowerCase().includes(ROBIN_COMMAND.toLowerCase());
-    const isDryRunMode = commentBody.includes(HAS_DRY_RUN_FLAG);
-    console.log(`comment: ${commentBody}`);
+    if (isCommentCreatedAction) {
+      const commentBody = githubContext.payload.comment.body;
+      const robinCommand = new RobinCommand(commentBody);
+      console.log(`comment: ${commentBody}`);
 
-    if (isTriggeredViaRobinCommand) {
-      console.log(`Triggered via ${ROBIN_COMMAND} command.`);
-      console.log(`is dry run = ${isDryRunMode}`);
-
-      if (isPullRequest && isDryRunMode) {
-        const pullRequest = new PullRequest(githubContext.payload);
-        const postComment = async () => {
+      if (robinCommand.isRobinCommand()) {
+        if (isPullRequest && robinCommand.isDryRunMode()) {
+          const pullRequest = new PullRequest(githubContext.payload);
           const {data: comment} = await octokit.issues.createComment({
             owner: pullRequest.owner,
             repo: pullRequest.repo,
@@ -52,17 +46,18 @@ try {
             body: 'dry-run test merge commit message',
           });
           console.log(`Created comment '${comment.body}' on issue '${pullRequest.number}'.`);
-          return comment;
-        };
-        postComment();
+          postComment();
+        }
+      } else {
+        console.log(
+            `Robin helps only when he has been explicitly asked via \`/robin\` command.
+            See https://github.com/vgaidarji/github-actions-pr-merger/tree/master#usage`);
+        return;
       }
-    } else {
-      console.log(
-          `Robin helps only when he has been explicitly asked via \`/robin\` command.
-          See https://github.com/vgaidarji/github-actions-pr-merger/tree/master#usage`);
-      return;
     }
+  } catch (error) {
+    core.setFailed(error.message);
   }
-} catch (error) {
-  core.setFailed(error.message);
-}
+};
+
+main();
