@@ -9,7 +9,7 @@ const octokit = github.getOctokit(GITHUB_TOKEN);
 const pullRequest = new PullRequest(githubContext.payload);
 // https://developer.github.com/v3/repos/statuses/
 class CommitStatus {
-  setStatus(status) {
+  setStatus(stateOfStatus) {
     try {
       const commitStatus = async () => {
         octokit.repos.createCommitStatus({
@@ -18,7 +18,7 @@ class CommitStatus {
           owner: pullRequest.owner,
           repo: pullRequest.repo,
           sha: GITHUB_SHA,
-          state: status, //  pending, success, failure, error
+          state: stateOfStatus, //  pending, success, failure, error
           target_url: 'https://www.google.com',
         });
       };
@@ -28,5 +28,11 @@ class CommitStatus {
     }
   }
 }
+
+CommitStatus.STATE = {
+  PENDING: 'pending',
+  SUCCESS: 'success',
+  FAILURE: 'failure',
+};
 
 module.exports = CommitStatus;

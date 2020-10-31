@@ -36,7 +36,7 @@ const main = async () => {
         return;
       }
 
-      commitStatus.setStatus('pedning');
+      commitStatus.setStatus(CommitStatus.STATE.PENDING);
 
       const commentBody = githubContext.payload.comment.body;
       const robinCommand = new RobinCommand(commentBody);
@@ -61,11 +61,11 @@ const main = async () => {
         return;
       }
 
-      commitStatus.setStatus('success');
+      commitStatus.setStatus(CommitStatus.STATE.SUCCESS);
     }
   } catch (error) {
     core.setFailed(error.message);
-    commitStatus.setStatus('failure');
+    commitStatus.setStatus(CommitStatus.STATE.FAILURE);
   }
 };
 
