@@ -1,5 +1,6 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
+const PullRequest = require('./github/pull-request');
 
 const {GITHUB_TOKEN} = process.env;
 const {GITHUB_SHA} = process.env;
