@@ -7,11 +7,11 @@ class RobinCommand {
   }
 
   isRobinCommand() {
-    return commentBody.toLowerCase().includes(ROBIN_COMMAND.toLowerCase());
+    return this.commentBody.toLowerCase().includes(ROBIN_COMMAND.toLowerCase());
   }
 
   isDryRunMode() {
-    return commentBody.includes(HAS_DRY_RUN_FLAG);
+    return this.commentBody.includes(HAS_DRY_RUN_FLAG);
   }
 }
 module.exports = RobinCommand;
