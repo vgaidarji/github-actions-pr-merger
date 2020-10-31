@@ -1,12 +1,14 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
 const PullRequest = require('./github/pull-request');
+const StatusCheck = require('./github/status-check');
 const RobinCommand = require('./robin/robin-command');
 
 const {GITHUB_TOKEN} = process.env;
 const {context: githubContext} = github;
 
 const octokit = github.getOctokit(GITHUB_TOKEN);
+const statusCheck = new StatusCheck();
 
 // on PR
 // on comment with command `/robin squash-merge` or `/robin rebase-merge`
@@ -22,6 +24,7 @@ const octokit = github.getOctokit(GITHUB_TOKEN);
 
 const main = async () => {
   try {
+    statusCheck.update('in_progress');
     console.groupCollapsed('GitHub event payload ' + '\u21B5');
     console.log(`${JSON.stringify(githubContext.payload)}`);
     console.groupEnd();
@@ -55,8 +58,10 @@ const main = async () => {
         return;
       }
     }
+    statusCheck.update('completed', 'success');
   } catch (error) {
     core.setFailed(error.message);
+    statusCheck.update('completed', 'failure');
   }
 };
 
