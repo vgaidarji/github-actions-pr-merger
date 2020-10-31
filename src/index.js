@@ -1,14 +1,12 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
 const PullRequest = require('./github/pull-request');
-const CommitStatus = require('./github/commit-status');
 const RobinCommand = require('./robin/robin-command');
 
 const {GITHUB_TOKEN} = process.env;
 const {context: githubContext} = github;
 
 const octokit = github.getOctokit(GITHUB_TOKEN);
-const commitStatus = new CommitStatus();
 
 // on PR
 // on comment with command `/robin squash-merge` or `/robin rebase-merge`
@@ -36,8 +34,6 @@ const main = async () => {
         return;
       }
 
-      commitStatus.setStatus(CommitStatus.STATE.PENDING);
-
       const commentBody = githubContext.payload.comment.body;
       const robinCommand = new RobinCommand(commentBody);
       console.log(`comment: ${commentBody}`);
@@ -60,12 +56,9 @@ const main = async () => {
             See https://github.com/vgaidarji/github-actions-pr-merger/tree/master#usage`);
         return;
       }
-
-      commitStatus.setStatus(CommitStatus.STATE.SUCCESS);
     }
   } catch (error) {
     core.setFailed(error.message);
-    commitStatus.setStatus(CommitStatus.STATE.FAILURE);
   }
 };
 
