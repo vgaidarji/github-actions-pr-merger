@@ -30,17 +30,22 @@ const main = async () => {
     console.groupEnd();
 
     const isComment = 'comment' in githubContext.payload;
-    // TODO: extract pull_request from 'issue' property from comment payload
-    const isPullRequest = 'pull_request' in githubContext.payload;
     const isCommentCreatedAction = isComment && githubContext.payload.action == 'created';
 
     if (isCommentCreatedAction) {
+      const isPullRequest = 'pull_request' in githubContext.payload.issue;
+      if (!isPullRequest) {
+        // not a comment on PR
+        statusCheck.update('completed', 'skipped');
+        return;
+      }
+
       const commentBody = githubContext.payload.comment.body;
       const robinCommand = new RobinCommand(commentBody);
       console.log(`comment: ${commentBody}`);
 
       if (robinCommand.isRobinCommand()) {
-        if (isPullRequest && robinCommand.isDryRunMode()) {
+        if (robinCommand.isDryRunMode()) {
           const pullRequest = new PullRequest(githubContext.payload);
           const {data: comment} = await octokit.issues.createComment({
             owner: pullRequest.owner,
