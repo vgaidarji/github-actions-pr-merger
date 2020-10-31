@@ -1,14 +1,14 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
 const PullRequest = require('./github/pull-request');
-const StatusCheck = require('./github/status-check');
+const CommitStatus = require('./github/commit-status');
 const RobinCommand = require('./robin/robin-command');
 
 const {GITHUB_TOKEN} = process.env;
 const {context: githubContext} = github;
 
 const octokit = github.getOctokit(GITHUB_TOKEN);
-const statusCheck = new StatusCheck();
+const commitStatus = new CommitStatus();
 
 // on PR
 // on comment with command `/robin squash-merge` or `/robin rebase-merge`
@@ -24,11 +24,7 @@ const statusCheck = new StatusCheck();
 
 const main = async () => {
   try {
-    statusCheck.setInProgress();
-
-    console.groupCollapsed('GitHub event payload ' + '\u21B5');
-    console.log(`${JSON.stringify(githubContext.payload)}`);
-    console.groupEnd();
+    console.log(`GitHub payload ${JSON.stringify(githubContext.payload)}`);
 
     const isComment = 'comment' in githubContext.payload;
     const isCommentCreatedAction = isComment && githubContext.payload.action == 'created';
@@ -36,10 +32,11 @@ const main = async () => {
     if (isCommentCreatedAction) {
       const isPullRequest = 'pull_request' in githubContext.payload.issue;
       if (!isPullRequest) {
-        // not a comment on PR
-        statusCheck.setConclusion('skipped');
+        core.setFailed('Not a comment on PR. Nothing to merge here.');
         return;
       }
+
+      commitStatus.setStatus('pedning');
 
       const commentBody = githubContext.payload.comment.body;
       const robinCommand = new RobinCommand(commentBody);
@@ -63,11 +60,12 @@ const main = async () => {
             See https://github.com/vgaidarji/github-actions-pr-merger/tree/master#usage`);
         return;
       }
+
+      commitStatus.setStatus('success');
     }
-    statusCheck.setConclusion('success');
   } catch (error) {
     core.setFailed(error.message);
-    statusCheck.setConclusion('failure');
+    commitStatus.setStatus('failure');
   }
 };
 
