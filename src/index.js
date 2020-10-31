@@ -24,7 +24,8 @@ const statusCheck = new StatusCheck();
 
 const main = async () => {
   try {
-    statusCheck.update('in_progress');
+    statusCheck.setInProgress();
+
     console.groupCollapsed('GitHub event payload ' + '\u21B5');
     console.log(`${JSON.stringify(githubContext.payload)}`);
     console.groupEnd();
@@ -36,7 +37,7 @@ const main = async () => {
       const isPullRequest = 'pull_request' in githubContext.payload.issue;
       if (!isPullRequest) {
         // not a comment on PR
-        statusCheck.update('completed', 'skipped');
+        statusCheck.setConclusion('skipped');
         return;
       }
 
@@ -63,10 +64,10 @@ const main = async () => {
         return;
       }
     }
-    statusCheck.update('completed', 'success');
+    statusCheck.setConclusion('success');
   } catch (error) {
     core.setFailed(error.message);
-    statusCheck.update('completed', 'failure');
+    statusCheck.setConclusion('failure');
   }
 };
 
