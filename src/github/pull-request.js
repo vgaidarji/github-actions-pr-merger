@@ -5,4 +5,5 @@ class PullRequest {
     this.repo = issueCommentPayload.repository.name;
   }
 }
+
 module.exports = PullRequest;
