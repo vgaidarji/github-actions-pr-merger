@@ -1,17 +1,24 @@
-const ROBIN_COMMAND = '/robin';
-const HAS_DRY_RUN_FLAG = '--dry-run';
-
 class RobinCommand {
   constructor(commentBody) {
     this.commentBody = commentBody;
   }
 
+  /**
+   * Performs case-insensitve search for robin command in commendy body
+   * /robin + <command> + <flags>
+   *
+   * @return {boolean} True when comment contains robin command, false - otherwise
+   */
   isRobinCommand() {
-    return this.commentBody.toLowerCase().includes(ROBIN_COMMAND.toLowerCase());
+    const robinCommands = `/robin`
+        .concat(` (merge|squash-merge|rebase-merge)`)
+        .concat(`( --dry-run)?`);
+    return new RegExp(robinCommands, 'i').test(this.commentBody);
   }
 
   isDryRunMode() {
-    return this.commentBody.includes(HAS_DRY_RUN_FLAG);
+    return new RegExp('--dry-run', 'i').test(this.commentBody);
   }
 }
+
 module.exports = RobinCommand;
