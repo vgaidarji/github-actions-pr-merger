@@ -48,7 +48,6 @@ const main = async () => {
             body: 'dry-run test merge commit message',
           });
           console.log(`Created comment '${comment.body}' on issue '${pullRequest.number}'.`);
-          postComment();
         }
       } else {
         console.log(
