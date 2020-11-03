@@ -22,7 +22,9 @@ const octokit = github.getOctokit(GITHUB_TOKEN);
 
 const main = async () => {
   try {
-    console.log(`GitHub payload ${JSON.stringify(githubContext.payload)}`);
+    core.startGroup('GitHub payload');
+    core.info(`${JSON.stringify(githubContext.payload)}`);
+    core.endGroup();
 
     const isComment = 'comment' in githubContext.payload;
     const isCommentCreatedAction = isComment && githubContext.payload.action == 'created';
