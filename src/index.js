@@ -9,7 +9,7 @@ const {context: githubContext} = github;
 const octokit = github.getOctokit(GITHUB_TOKEN);
 
 // ✓ on PR
-// on comment with command `/robin merge` | `/robin squash-merge` | `/robin rebase-merge`
+// ✓ on comment with command `/robin merge` | `/robin squash-merge` | `/robin rebase-merge`
 // check mergeability & return early otherwise
 // check all PR checks are passing & return early otherwise
 // get list of commits
