@@ -41,12 +41,58 @@ function printGitHubPayload() {
  * Performs dry-run merge and posts a result comment on PR.
  */
 const performDryRunMerge = async () => {
+  // TODO perform local merge and print all commits
+  const commits = `
+  git merge target-branch
+  git log --oneline 39bdc7614...HEAD | cat $1
+
+  fc076d8de Merge branch 'test-branch' into master
+  4a577c943 Some t content
+  f1d56d324 Test file b
+  97a32fee7 Test file
+  `;
+
+  // TODO print diff of changes after local merge
+  const fileChanges = `
+  git diff 39bdc7614...4a577c943 --oneline | cat $1
+  diff--git a / b b / b
+  new file mode 100644
+  index 000000000..e69de29bb
+  diff--git a / t b / t
+  new file mode 100644
+  index 000000000..f0eec86f6
+  --- /dev/null
+  +++ b / t
+  @@ -0, 0 + 1 @@
+  +some content
+  `;
+
+  // TODO hook in real mergeability check
+  const mergeMessage = `--dry-run merge result
+  ### Mergeability
+  Can merge ✅
+
+  ### Commits
+  \`\`\`
+  ${commits}
+  \`\`\`
+
+  ### File changes
+
+  <details>
+  <summary>Show changes</summary>
+  \`\`\`
+  ${fileChanges}
+  \`\`\`
+  </details>
+  `;
+
   const pullRequest = new PullRequest(githubContext.payload);
   const {data: comment} = await octokit.issues.createComment({
     owner: pullRequest.owner,
     repo: pullRequest.repo,
     issue_number: pullRequest.number,
-    body: 'dry-run test merge commit message',
+    body: mergeMessage,
   });
   console.log(`Created comment '${comment.body}' on issue '${pullRequest.number}'.`);
 };
