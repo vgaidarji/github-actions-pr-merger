@@ -64,14 +64,14 @@ const performDryRunMerge = async () => {
   console.log('Performing dry run merge.');
 
   // TODO perform local merge and print all commits
-  const currentPullRequest = octokit.pulls.get(pullRequest.number);
+  const currentPullRequest = await octokit.pulls.get(pullRequest.number);
   console.log(currentPullRequest);
 
   // const currentBranch = '';
   // const mergeResult = executeShellCommand(`git merge ${currentBranch} --no-ff`);
   // console.log(mergeResult);
   // const commits = executeShellCommand('git log--oneline 39bdc7614...HEAD | cat $1');
-
+  const commits = '';
 
   // TODO print diff of changes after local merge
   const fileChanges = `
