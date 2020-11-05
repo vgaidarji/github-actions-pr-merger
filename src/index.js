@@ -64,7 +64,10 @@ const performDryRunMerge = async () => {
   console.log('Performing dry run merge.');
 
   // TODO perform local merge and print all commits
-  const currentPullRequest = await octokit.pulls.get(pullRequest.number);
+  const currentPullRequest = await octokit.pulls.get(pullRequest.number).catch((e) => {
+    console.log(e.message);
+    return failureOutput;
+  });
   console.log(currentPullRequest);
 
   // const currentBranch = '';
