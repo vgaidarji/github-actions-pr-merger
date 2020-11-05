@@ -20,16 +20,45 @@ const octokit = github.getOctokit(GITHUB_TOKEN);
 // perform merge
 // remove source branch
 
+/**
+ * Identifies whether comment created action triggered this action.
+ * @return {boolean} True when triggered for comment 'created' action, false - otherwise
+ */
+function isCommentCreated() {
+  return 'comment' in githubContext.payload && githubContext.payload.action == 'created';
+};
+
+/**
+ * Prints GitHub event payload JSON to console to provide additional debug info.
+ */
+function printGitHubPayload() {
+  core.startGroup('GitHub payload');
+  core.info(`${JSON.stringify(githubContext.payload)}`);
+  core.endGroup();
+};
+
+/**
+ * Performs dry-run merge and posts a result comment on PR.
+ */
+const performDryRunMerge = async () => {
+  const pullRequest = new PullRequest(githubContext.payload);
+  const {data: comment} = await octokit.issues.createComment({
+    owner: pullRequest.owner,
+    repo: pullRequest.repo,
+    issue_number: pullRequest.number,
+    body: 'dry-run test merge commit message',
+  });
+  console.log(`Created comment '${comment.body}' on issue '${pullRequest.number}'.`);
+};
+
+const performMerge = async () => {
+  console.log(`Merge succeeded.`);
+};
+
 const main = async () => {
   try {
-    core.startGroup('GitHub payload');
-    core.info(`${JSON.stringify(githubContext.payload)}`);
-    core.endGroup();
-
-    const isComment = 'comment' in githubContext.payload;
-    const isCommentCreatedAction = isComment && githubContext.payload.action == 'created';
-
-    if (isCommentCreatedAction) {
+    printGitHubPayload();
+    if (isCommentCreated()) {
       const isPullRequest = 'pull_request' in githubContext.payload.issue;
       if (!isPullRequest) {
         core.setFailed('Not a comment on PR. Nothing to merge here.');
@@ -42,14 +71,10 @@ const main = async () => {
 
       if (robinCommand.isRobinCommand()) {
         if (robinCommand.isDryRunMode()) {
-          const pullRequest = new PullRequest(githubContext.payload);
-          const {data: comment} = await octokit.issues.createComment({
-            owner: pullRequest.owner,
-            repo: pullRequest.repo,
-            issue_number: pullRequest.number,
-            body: 'dry-run test merge commit message',
-          });
-          console.log(`Created comment '${comment.body}' on issue '${pullRequest.number}'.`);
+          performDryRunMerge();
+          return;
+        } else {
+          performMerge();
         }
       } else {
         console.log(
