@@ -7,6 +7,7 @@ const {GITHUB_TOKEN} = process.env;
 const {context: githubContext} = github;
 
 const octokit = github.getOctokit(GITHUB_TOKEN);
+const pullRequest = new PullRequest(githubContext.payload);
 
 // ✓ on PR
 // ✓ on comment with command `/robin merge` | `/robin squash-merge` | `/robin rebase-merge`
@@ -37,20 +38,40 @@ function printGitHubPayload() {
   core.endGroup();
 };
 
+// async function executeShellCommand(command) {
+//   let output = '';
+//   let error = '';
+
+//   const options = {};
+//   options.listeners = {
+//     stdout: (data) => {
+//       output += data.toString();
+//     },
+//     stderr: (data) => {
+//       error += data.toString();
+//     },
+//   };
+
+//   await exec.exec(command, options);
+//   core.setFailed(error);
+//   return output;
+// };
+
 /**
  * Performs dry-run merge and posts a result comment on PR.
  */
 const performDryRunMerge = async () => {
-  // TODO perform local merge and print all commits
-  const commits = `
-  git merge target-branch
-  git log --oneline 39bdc7614...HEAD | cat $1
+  console.log('Performing dry run merge.');
 
-  fc076d8de Merge branch 'test-branch' into master
-  4a577c943 Some t content
-  f1d56d324 Test file b
-  97a32fee7 Test file
-  `;
+  // TODO perform local merge and print all commits
+  const currentPullRequest = octokit.pulls.get(pullRequest.number);
+  console.log(currentPullRequest);
+
+  // const currentBranch = '';
+  // const mergeResult = executeShellCommand(`git merge ${currentBranch} --no-ff`);
+  // console.log(mergeResult);
+  // const commits = executeShellCommand('git log--oneline 39bdc7614...HEAD | cat $1');
+
 
   // TODO print diff of changes after local merge
   const fileChanges = `
@@ -89,7 +110,6 @@ const performDryRunMerge = async () => {
   </details>
   `;
 
-  const pullRequest = new PullRequest(githubContext.payload);
   const {data: comment} = await octokit.issues.createComment({
     owner: pullRequest.owner,
     repo: pullRequest.repo,
