@@ -68,11 +68,12 @@ const performDryRunMerge = async () => {
   `;
 
   // TODO hook in real mergeability check
-  const mergeMessage = `--dry-run merge result
+  const mergeMessage = `
   ### Mergeability
   Can merge ✅
 
   ### Commits
+
   \`\`\`
   ${commits}
   \`\`\`
@@ -81,6 +82,7 @@ const performDryRunMerge = async () => {
 
   <details>
   <summary>Show changes</summary>
+
   \`\`\`
   ${fileChanges}
   \`\`\`
