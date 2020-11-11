@@ -1,5 +1,6 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
+const MergeMethod = require('./github/merge-method');
 const RobinCommand = require('./robin/robin-command');
 
 const {GITHUB_TOKEN} = process.env;
@@ -76,15 +77,27 @@ const performDryRunMerge = async (pullRequest) => {
   `;
 
   const {data: comment} = await octokit.issues.createComment({
-    owner: pullRequestFromPayload.owner,
-    repo: pullRequestFromPayload.repo,
-    issue_number: pullRequestFromPayload.number,
+    owner: pullRequest.owner,
+    repo: pullRequest.repo,
+    issue_number: pullRequest.number,
     body: dryRunMessage,
   });
-  console.log(`Created comment '${comment.body}' on issue '${pullRequestFromPayload.number}'.`);
+  console.log(`Created comment '${comment.body}' on issue '${pullRequest.number}'.`);
 };
 
 const performMerge = async (pullRequest) => {
+  // https://docs.github.com/en/free-pro-team@latest/rest/reference/pulls#merge-a-pull-request
+  await octokit.pulls.merge({
+    owner: pullRequest.owner,
+    repo: pullRequest.repo,
+    pull_number: pullRequest.number,
+    commit_title: pullRequest.title,
+    // Pass merge method from robin command
+    merge_method: MergeMethod.MERGE,
+  }).catch((e) => {
+    console.log(e.message);
+    return failureOutput;
+  });
   console.log(`Merge succeeded.`);
 };
 
