@@ -59,31 +59,10 @@ const fetchFullPullRequestObject = async () => {
 const performDryRunMerge = async (pullRequest) => {
   console.log('Performing dry run merge.');
 
-  // TODO perform local merge and print all commits
-
-  // const currentBranch = '';
-  // const mergeResult = executeShellCommand(`git merge ${currentBranch} --no-ff`);
-  // console.log(mergeResult);
-  // const commits = executeShellCommand('git log--oneline 39bdc7614...HEAD | cat $1');
   const commits = '';
 
-  // TODO print diff of changes after local merge
-  const fileChanges = `
-  git diff 39bdc7614...4a577c943 --oneline | cat $1
-  diff--git a / b b / b
-  new file mode 100644
-  index 000000000..e69de29bb
-  diff--git a / t b / t
-  new file mode 100644
-  index 000000000..f0eec86f6
-  --- /dev/null
-  +++ b / t
-  @@ -0, 0 + 1 @@
-  +some content
-  `;
-
   // TODO hook in real mergeability check
-  const mergeMessage = `
+  const dryRunMessage = `
   ### Mergeability
   Can merge ✅
 
@@ -92,23 +71,13 @@ const performDryRunMerge = async (pullRequest) => {
   \`\`\`
   ${commits}
   \`\`\`
-
-  ### File changes
-
-  <details>
-  <summary>Show changes</summary>
-
-  \`\`\`
-  ${fileChanges}
-  \`\`\`
-  </details>
   `;
 
   const {data: comment} = await octokit.issues.createComment({
     owner: pullRequestFromPayload.owner,
     repo: pullRequestFromPayload.repo,
     issue_number: pullRequestFromPayload.number,
-    body: mergeMessage,
+    body: dryRunMessage,
   });
   console.log(`Created comment '${comment.body}' on issue '${pullRequestFromPayload.number}'.`);
 };
