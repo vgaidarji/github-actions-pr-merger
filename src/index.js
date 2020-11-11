@@ -45,9 +45,6 @@ const fetchFullPullRequestObject = async () => {
     owner: issueCommentPayload.repository.owner.login,
     repo: issueCommentPayload.repository.name,
     pull_number: issueCommentPayload.issue.number,
-  }).catch((e) => {
-    console.log(e.message);
-    return failureOutput;
   });
   core.startGroup('PullRequest payload');
   core.info(`${JSON.stringify(currentPullRequest)}`);
@@ -94,9 +91,6 @@ const performMerge = async (pullRequest) => {
     commit_title: pullRequest.title,
     // Pass merge method from robin command
     merge_method: MergeMethod.MERGE,
-  }).catch((e) => {
-    console.log(e.message);
-    return failureOutput;
   });
   console.log(`Merge succeeded.`);
 };
