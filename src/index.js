@@ -101,7 +101,7 @@ const performMerge = async (pullRequest) => {
   console.log(`Merge succeeded.`);
 };
 
-const main = async () => {
+function main() {
   try {
     printGitHubPayload();
     const pullRequest = fetchFullPullRequestObject();
