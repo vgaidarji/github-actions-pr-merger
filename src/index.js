@@ -1,13 +1,11 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
-const PullRequest = require('./github/pull-request');
 const RobinCommand = require('./robin/robin-command');
 
 const {GITHUB_TOKEN} = process.env;
 const {context: githubContext} = github;
 
 const octokit = github.getOctokit(GITHUB_TOKEN);
-const pullRequest = new PullRequest(githubContext.payload);
 
 // ✓ on PR
 // ✓ on comment with command `/robin merge` | `/robin squash-merge` | `/robin rebase-merge`
@@ -38,41 +36,29 @@ function printGitHubPayload() {
   core.endGroup();
 };
 
-// async function executeShellCommand(command) {
-//   let output = '';
-//   let error = '';
-
-//   const options = {};
-//   options.listeners = {
-//     stdout: (data) => {
-//       output += data.toString();
-//     },
-//     stderr: (data) => {
-//       error += data.toString();
-//     },
-//   };
-
-//   await exec.exec(command, options);
-//   core.setFailed(error);
-//   return output;
-// };
-
-/**
- * Performs dry-run merge and posts a result comment on PR.
- */
-const performDryRunMerge = async () => {
-  console.log('Performing dry run merge.');
-
-  // TODO perform local merge and print all commits
+const fetchFullPullRequestObject = async () => {
+  // issue comment payload contains some info about PR but not full (no head/base commits, etc.)
+  const issueCommentPayload = githubContext.payload;
   const {data: currentPullRequest} = await octokit.pulls.get({
-    owner: pullRequest.owner,
-    repo: pullRequest.repo,
-    pull_number: pullRequest.number,
+    owner: issueCommentPayload.repository.owner.login,
+    repo: issueCommentPayload.repository.name,
+    pull_number: issueCommentPayload.issue.number,
   }).catch((e) => {
     console.log(e.message);
     return failureOutput;
   });
   console.log(currentPullRequest);
+  return currentPullRequest;
+};
+
+/**
+ * Performs dry-run merge and posts a result comment on PR.
+ * @param {PullRequest} pullRequest - Pull Request object
+ */
+const performDryRunMerge = async (pullRequest) => {
+  console.log('Performing dry run merge.');
+
+  // TODO perform local merge and print all commits
 
   // const currentBranch = '';
   // const mergeResult = executeShellCommand(`git merge ${currentBranch} --no-ff`);
@@ -118,21 +104,22 @@ const performDryRunMerge = async () => {
   `;
 
   const {data: comment} = await octokit.issues.createComment({
-    owner: pullRequest.owner,
-    repo: pullRequest.repo,
-    issue_number: pullRequest.number,
+    owner: pullRequestFromPayload.owner,
+    repo: pullRequestFromPayload.repo,
+    issue_number: pullRequestFromPayload.number,
     body: mergeMessage,
   });
-  console.log(`Created comment '${comment.body}' on issue '${pullRequest.number}'.`);
+  console.log(`Created comment '${comment.body}' on issue '${pullRequestFromPayload.number}'.`);
 };
 
-const performMerge = async () => {
+const performMerge = async (pullRequest) => {
   console.log(`Merge succeeded.`);
 };
 
 const main = async () => {
   try {
     printGitHubPayload();
+    const pullRequest = fetchFullPullRequestObject();
     if (isCommentCreated()) {
       const isPullRequest = 'pull_request' in githubContext.payload.issue;
       if (!isPullRequest) {
@@ -146,10 +133,10 @@ const main = async () => {
 
       if (robinCommand.isRobinCommand()) {
         if (robinCommand.isDryRunMode()) {
-          performDryRunMerge();
+          performDryRunMerge(pullRequest);
           return;
         } else {
-          performMerge();
+          performMerge(pullRequest);
         }
       } else {
         console.log(
