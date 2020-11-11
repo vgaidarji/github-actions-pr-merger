@@ -48,7 +48,9 @@ const fetchFullPullRequestObject = async () => {
     console.log(e.message);
     return failureOutput;
   });
-  console.log(currentPullRequest);
+  core.startGroup('PullRequest payload');
+  core.info(`${JSON.stringify(currentPullRequest)}`);
+  core.endGroup();
   return currentPullRequest;
 };
 
