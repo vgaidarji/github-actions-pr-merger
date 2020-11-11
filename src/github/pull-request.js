@@ -1,8 +1,8 @@
 class PullRequest {
-  constructor(issueCommentPayload) {
-    this.owner = issueCommentPayload.repository.owner.login;
-    this.number = issueCommentPayload.issue.number;
-    this.repo = issueCommentPayload.repository.name;
+  constructor(pullRequestPayload) {
+    this.owner = pullRequestPayload.head.repo.owner.login;
+    this.repo = pullRequestPayload.head.repo.name;
+    this.number = pullRequestPayload.number;
   }
 }
 
