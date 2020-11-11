@@ -39,6 +39,7 @@ function printGitHubPayload() {
 const fetchFullPullRequestObject = async () => {
   // issue comment payload contains some info about PR but not full (no head/base commits, etc.)
   const issueCommentPayload = githubContext.payload;
+  // https://docs.github.com/en/free-pro-team@latest/rest/reference/pulls#get-a-pull-request
   const {data: currentPullRequest} = await octokit.pulls.get({
     owner: issueCommentPayload.repository.owner.login,
     repo: issueCommentPayload.repository.name,
