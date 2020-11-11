@@ -76,12 +76,12 @@ const performDryRunMerge = async (pullRequest) => {
   `;
 
   const {data: comment} = await octokit.issues.createComment({
-    owner: pullRequestFromPayload.owner,
-    repo: pullRequestFromPayload.repo,
-    issue_number: pullRequestFromPayload.number,
+    owner: pullRequest.owner,
+    repo: pullRequest.repo,
+    issue_number: pullRequest.number,
     body: dryRunMessage,
   });
-  console.log(`Created comment '${comment.body}' on issue '${pullRequestFromPayload.number}'.`);
+  console.log(`Created comment '${comment.body}' on issue '${pullRequest.number}'.`);
 };
 
 const performMerge = async (pullRequest) => {
