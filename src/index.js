@@ -84,6 +84,9 @@ const performDryRunMerge = async (pullRequest) => {
 
 const performMerge = async (pullRequest) => {
   // https://docs.github.com/en/free-pro-team@latest/rest/reference/pulls#merge-a-pull-request
+  core.startGroup('See below the Pull Request being merged');
+  core.info(`${JSON.stringify(pullRequest)}`);
+  core.endGroup();
   await octokit.pulls.merge({
     owner: pullRequest.owner,
     repo: pullRequest.repo,
@@ -91,6 +94,8 @@ const performMerge = async (pullRequest) => {
     commit_title: pullRequest.title,
     // Pass merge method from robin command
     merge_method: MergeMethod.MERGE,
+  }).catch((e) => {
+    console.log('Failed to perform merge operation: ' + e.message);
   });
   console.log(`Merge succeeded.`);
 };
