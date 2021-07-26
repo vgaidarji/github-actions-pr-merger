@@ -103,7 +103,9 @@ const performMerge = async (pullRequest) => {
 function main() {
   try {
     printGitHubPayload();
-    const pullRequest = fetchFullPullRequestObject();
+    const pullRequest = fetchFullPullRequestObject().catch((e) => {
+      console.log('Failed to fetch pull request object: ' + e.message);
+    });
     if (isCommentCreated()) {
       const isPullRequest = 'pull_request' in githubContext.payload.issue;
       if (!isPullRequest) {
