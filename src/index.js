@@ -49,15 +49,14 @@ const fetchFullPullRequestObject = async () => {
   // issue comment payload contains some info about PR but not full (no head/base commits, etc.)
   const issueCommentPayload = githubContext.payload;
   // https://docs.github.com/en/free-pro-team@latest/rest/reference/pulls#get-a-pull-request
-  await octokit.pulls.get({
+  const {data: pullRequest} = await octokit.pulls.get({
     owner: issueCommentPayload.repository.owner.login,
     repo: issueCommentPayload.repository.name,
     pull_number: issueCommentPayload.issue.number,
-  }).then((response) => {
-    printCollapsibleConsoleMessage('PullRequest payload', `${JSON.stringify(response.data)}`);
   }).catch((e) => {
     console.log('Failed to fetch pull request object: ' + e.message);
   });
+  printCollapsibleConsoleMessage('PullRequest payload', `${JSON.stringify(pullRequest)}`);
 };
 
 /**
