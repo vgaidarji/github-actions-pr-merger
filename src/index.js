@@ -112,7 +112,6 @@ function mergePullRequest(pullRequest, commentBody) {
 
   if (robinCommand.isDryRunMode()) {
     performDryRunMerge(pullRequest);
-    return;
   } else {
     performMerge(pullRequest);
   }
@@ -120,8 +119,9 @@ function mergePullRequest(pullRequest, commentBody) {
 
 function main() {
   try {
+    const commentBody = githubContext.payload.comment.body;
+    const robinCommand = new RobinCommand(commentBody);
     printGitHubPayload();
-
     fetchFullPullRequestObject().then((pullRequest) => {
       if (isCommentCreated()) {
         if (!isPullRequest()) {
@@ -134,7 +134,7 @@ function main() {
               See https://github.com/vgaidarji/github-actions-pr-merger/tree/master#usage`);
           return;
         }
-        mergePullRequest(pullRequest, githubContext.payload.comment.body);
+        mergePullRequest(pullRequest, commentBody);
       }
     });
   } catch (error) {
