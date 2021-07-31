@@ -32,30 +32,32 @@ function isPullRequest() {
   return 'pull_request' in githubContext.payload.issue;
 };
 
+function printCollapsibleConsoleMessage(title, message) {
+  core.startGroup(title);
+  core.info(message);
+  core.endGroup();
+}
+
 /**
  * Prints GitHub event payload JSON to console to provide additional debug info.
  */
 function printGitHubPayload() {
-  core.startGroup('GitHub payload');
-  core.info(`${JSON.stringify(githubContext.payload)}`);
-  core.endGroup();
+  printCollapsibleConsoleMessage('GitHub payload', `${JSON.stringify(githubContext.payload)}`);
 };
 
 const fetchFullPullRequestObject = async () => {
   // issue comment payload contains some info about PR but not full (no head/base commits, etc.)
   const issueCommentPayload = githubContext.payload;
   // https://docs.github.com/en/free-pro-team@latest/rest/reference/pulls#get-a-pull-request
-  const {data: currentPullRequest} = await octokit.pulls.get({
+  await octokit.pulls.get({
     owner: issueCommentPayload.repository.owner.login,
     repo: issueCommentPayload.repository.name,
     pull_number: issueCommentPayload.issue.number,
+  }).then((response) => {
+    printCollapsibleConsoleMessage('PullRequest payload', `${JSON.stringify(response.data)}`);
   }).catch((e) => {
     console.log('Failed to fetch pull request object: ' + e.message);
   });
-
-  core.startGroup('PullRequest payload');
-  core.info(`${JSON.stringify(currentPullRequest)}`);
-  core.endGroup();
 };
 
 /**
@@ -79,13 +81,16 @@ const performDryRunMerge = async (pullRequest) => {
   \`\`\`
   `;
 
-  const {data: comment} = await octokit.issues.createComment({
+  await octokit.issues.createComment({
     owner: pullRequest.owner,
     repo: pullRequest.repo,
     issue_number: pullRequest.number,
     body: dryRunMessage,
+  }).then((response) => {
+    console.log(`Created comment '${response.data.body}' on issue '${pullRequest.number}'.`);
+  }).catch((e) => {
+    console.log('Failed to post a comment on pull request: ' + e.message);
   });
-  console.log(`Created comment '${comment.body}' on issue '${pullRequest.number}'.`);
 };
 
 const performMerge = async (pullRequest) => {
@@ -100,10 +105,11 @@ const performMerge = async (pullRequest) => {
     commit_title: pullRequest.title,
     // Pass merge method from robin command
     merge_method: MergeMethod.MERGE,
+  }).then(() => {
+    console.log(`Merge succeeded.`);
   }).catch((e) => {
     console.log('Failed to perform merge operation: ' + e.message);
   });
-  console.log(`Merge succeeded.`);
 };
 
 function mergePullRequest(pullRequest, commentBody) {
