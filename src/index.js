@@ -28,6 +28,10 @@ function isCommentCreated() {
   return 'comment' in githubContext.payload && githubContext.payload.action == 'created';
 };
 
+function isPullRequest() {
+  return 'pull_request' in githubContext.payload.issue;
+};
+
 /**
  * Prints GitHub event payload JSON to console to provide additional debug info.
  */
@@ -45,11 +49,13 @@ const fetchFullPullRequestObject = async () => {
     owner: issueCommentPayload.repository.owner.login,
     repo: issueCommentPayload.repository.name,
     pull_number: issueCommentPayload.issue.number,
+  }).catch((e) => {
+    console.log('Failed to fetch pull request object: ' + e.message);
   });
+
   core.startGroup('PullRequest payload');
   core.info(`${JSON.stringify(currentPullRequest)}`);
   core.endGroup();
-  return currentPullRequest;
 };
 
 /**
@@ -100,35 +106,37 @@ const performMerge = async (pullRequest) => {
   console.log(`Merge succeeded.`);
 };
 
+function mergePullRequest(pullRequest, commentBody) {
+  const robinCommand = new RobinCommand(commentBody);
+  console.log(`comment: ${commentBody}`);
+
+  if (robinCommand.isDryRunMode()) {
+    performDryRunMerge(pullRequest);
+    return;
+  } else {
+    performMerge(pullRequest);
+  }
+};
+
 function main() {
   try {
     printGitHubPayload();
-    const pullRequest = fetchFullPullRequestObject();
-    if (isCommentCreated()) {
-      const isPullRequest = 'pull_request' in githubContext.payload.issue;
-      if (!isPullRequest) {
-        core.setFailed('Not a comment on PR. Nothing to merge here.');
-        return;
-      }
 
-      const commentBody = githubContext.payload.comment.body;
-      const robinCommand = new RobinCommand(commentBody);
-      console.log(`comment: ${commentBody}`);
-
-      if (robinCommand.isRobinCommand()) {
-        if (robinCommand.isDryRunMode()) {
-          performDryRunMerge(pullRequest);
+    fetchFullPullRequestObject().then((pullRequest) => {
+      if (isCommentCreated()) {
+        if (!isPullRequest()) {
+          core.setFailed('Not a comment on PR. Nothing to merge here.');
           return;
-        } else {
-          performMerge(pullRequest);
         }
-      } else {
-        console.log(
-            `Robin helps only when he has been explicitly asked via \`/robin\` command.
-            See https://github.com/vgaidarji/github-actions-pr-merger/tree/master#usage`);
-        return;
+        if (!robinCommand.isRobinCommand()) {
+          console.log(
+              `Robin helps only when he has been explicitly asked via \`/robin\` command.
+              See https://github.com/vgaidarji/github-actions-pr-merger/tree/master#usage`);
+          return;
+        }
+        mergePullRequest(pullRequest, githubContext.payload.comment.body);
       }
-    }
+    });
   } catch (error) {
     core.setFailed(error.message);
   }
