@@ -18,7 +18,7 @@ const octokit = github.getOctokit(GITHUB_TOKEN);
 // use PR title as 1 line
 // find Jira ticket ID from PR description
 // use template file to form final merge commit message
-// perform merge
+// ✓ perform merge
 // remove source branch
 
 /**
