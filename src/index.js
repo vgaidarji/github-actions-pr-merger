@@ -50,17 +50,17 @@ const fetchFullPullRequestObject = async () => {
   // issue comment payload contains some info about PR but not full (no head/base commits, etc.)
   const issueCommentPayload = githubContext.payload;
   // https://docs.github.com/en/free-pro-team@latest/rest/reference/pulls#get-a-pull-request
-  const {data: pullRequest} = await octokit.pulls.get({
+  const {data: pullRequestResponse} = await octokit.pulls.get({
     owner: issueCommentPayload.repository.owner.login,
     repo: issueCommentPayload.repository.name,
     pull_number: issueCommentPayload.issue.number,
   }).catch((e) => {
     console.log('Failed to fetch pull request object: ' + e.message);
   });
-  printCollapsibleConsoleMessage('PullRequest payload', `${JSON.stringify(pullRequest)}`);
-  const pr = new PullRequest(pullRequest);
-  console.log('PR object: ' + `${JSON.stringify(pr)}`);
-  return pr;
+  printCollapsibleConsoleMessage('PullRequest response', `${JSON.stringify(pullRequestResponse)}`);
+  const pullRequest = new PullRequest(pullRequestResponse);
+  console.log('PullRequest object: ' + `${JSON.stringify(pullRequest)}`);
+  return pullRequest;
 };
 
 /**
@@ -117,8 +117,6 @@ const performMerge = async (pullRequest) => {
 
 function mergePullRequest(pullRequest, commentBody) {
   const robinCommand = new RobinCommand(commentBody);
-  console.log(`comment: ${commentBody}`);
-
   if (robinCommand.isDryRunMode()) {
     performDryRunMerge(pullRequest);
   } else {
@@ -129,7 +127,7 @@ function mergePullRequest(pullRequest, commentBody) {
 function main() {
   try {
     const commentBody = githubContext.payload.comment.body;
-    const robinCommand = new RobinCommand(commentBody);
+    console.log(`PullRequest comment: ${commentBody}`);
     printGitHubPayload();
     fetchFullPullRequestObject().then((pullRequest) => {
       if (isCommentCreated()) {
@@ -137,6 +135,7 @@ function main() {
           core.setFailed('Not a comment on PR. Nothing to merge here.');
           return;
         }
+        const robinCommand = new RobinCommand(commentBody);
         if (!robinCommand.isRobinCommand()) {
           console.log(
               `Robin helps only when he has been explicitly asked via \`/robin\` command.
