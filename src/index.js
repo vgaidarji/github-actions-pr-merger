@@ -57,7 +57,9 @@ const fetchFullPullRequestObject = async () => {
     console.log('Failed to fetch pull request object: ' + e.message);
   });
   printCollapsibleConsoleMessage('PullRequest payload', `${JSON.stringify(pullRequest)}`);
-  return pullRequest;
+  const pr = new PullRequest(pullRequest);
+  console.log('PR object: ' + `${JSON.stringify(pr)}`);
+  return pr;
 };
 
 /**
