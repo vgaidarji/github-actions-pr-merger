@@ -4,6 +4,7 @@ class PullRequest {
     this.repo = pullRequestPayload.head.repo.name;
     this.number = pullRequestPayload.number;
     this.title = pullRequestPayload.title;
+    this.mergeable = pullRequestPayload.mergeable;
   }
 }
 

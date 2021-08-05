@@ -46,6 +46,10 @@ function printGitHubPayload() {
   printCollapsibleConsoleMessage('GitHub payload', `${JSON.stringify(githubContext.payload)}`);
 };
 
+/**
+ * Returns Pull Request associated with issue comment that triggered the action.
+ * @return {PullRequest} pullRequest - Pull Request object
+ */
 const fetchFullPullRequestObject = async () => {
   // issue comment payload contains some info about PR but not full (no head/base commits, etc.)
   const issueCommentPayload = githubContext.payload;
@@ -64,18 +68,24 @@ const fetchFullPullRequestObject = async () => {
 };
 
 /**
+ * Identifies whether current Pull Request is mergeable.
+ * @param {PullRequest} pullRequest - Pull Request object
+ */
+function isPullRequestMergeable(pullRequest) {
+  // more about `mergeable` status
+  // https://docs.github.com/en/rest/reference/pulls#get-a-pull-request
+  return pullRequest.mergeable;
+}
+
+/**
  * Performs dry-run merge and posts a result comment on PR.
  * @param {PullRequest} pullRequest - Pull Request object
  */
-const performDryRunMerge = async (pullRequest) => {
-  console.log('Performing dry run merge.');
-
+function constructMergeDebugInfo(pullRequest) {
   const commits = '';
-
-  // TODO hook in real mergeability check
-  const dryRunMessage = `
+  const mergeDebugInfo = `
   ### Mergeability
-  Can merge ✅
+  Can merge ${isPullRequestMergeable() ? '✅' : '❌'}
 
   ### Commits
 
@@ -83,12 +93,21 @@ const performDryRunMerge = async (pullRequest) => {
   ${commits}
   \`\`\`
   `;
+  return mergeDebugInfo;
+}
 
+/**
+ * Performs dry-run merge and posts a result comment on PR.
+ * @param {PullRequest} pullRequest - Pull Request object
+ */
+const postMergeDebugInfo = async (pullRequest) => {
+  console.log('Performing dry run merge.');
+  const mergeDebugInfo = constructMergeDebugInfo();
   await octokit.issues.createComment({
     owner: pullRequest.owner,
     repo: pullRequest.repo,
     issue_number: pullRequest.number,
-    body: dryRunMessage,
+    body: mergeDebugInfo,
   }).then((response) => {
     console.log(`Created comment '${response.data.body}' on issue '${pullRequest.number}'.`);
   }).catch((e) => {
@@ -118,9 +137,11 @@ const performMerge = async (pullRequest) => {
 function mergePullRequest(pullRequest, commentBody) {
   const robinCommand = new RobinCommand(commentBody);
   if (robinCommand.isDryRunMode()) {
-    performDryRunMerge(pullRequest);
+    postMergeDebugInfo(pullRequest);
   } else {
-    performMerge(pullRequest);
+    if (isPullRequestMergeable()) {
+      performMerge(pullRequest);
+    }
   }
 };
 
