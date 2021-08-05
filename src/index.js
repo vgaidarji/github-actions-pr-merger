@@ -87,7 +87,7 @@ function constructMergeDebugInfo(pullRequest) {
   const commits = '';
   const mergeDebugInfo = `
   ### Mergeability
-  Can merge ${isPullRequestMergeable(pullRequest) ? '❌❌' : '✅✅'}
+  Can merge ${isPullRequestMergeable(pullRequest) ? '✅' : '❌'}
 
   ### Commits
 
