@@ -87,7 +87,7 @@ function constructMergeDebugInfo(pullRequest) {
   const commits = '';
   const mergeDebugInfo = `
   ### Mergeability
-  Can merge ${isPullRequestMergeable() ? '✅' : '❌'}
+  Can merge ${isPullRequestMergeable(pullRequest) ? '✅' : '❌'}
 
   ### Commits
 
@@ -104,7 +104,7 @@ function constructMergeDebugInfo(pullRequest) {
  */
 const postMergeDebugInfo = async (pullRequest) => {
   console.log('Performing dry run merge.');
-  const mergeDebugInfo = constructMergeDebugInfo();
+  const mergeDebugInfo = constructMergeDebugInfo(pullRequest);
   await octokit.issues.createComment({
     owner: pullRequest.owner,
     repo: pullRequest.repo,
