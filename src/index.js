@@ -141,7 +141,7 @@ function mergePullRequest(pullRequest, commentBody) {
   if (robinCommand.isDryRunMode()) {
     postMergeDebugInfo(pullRequest);
   } else {
-    if (isPullRequestMergeable()) {
+    if (isPullRequestMergeable(pullRequest)) {
       performMerge(pullRequest);
     }
   }
