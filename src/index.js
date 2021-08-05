@@ -48,7 +48,7 @@ function printGitHubPayload() {
 
 /**
  * Returns Pull Request associated with issue comment that triggered the action.
- * @return {PullRequest} pullRequest - Pull Request object
+ * @return {PullRequest} Pull Request object
  */
 const fetchFullPullRequestObject = async () => {
   // issue comment payload contains some info about PR but not full (no head/base commits, etc.)
@@ -69,7 +69,8 @@ const fetchFullPullRequestObject = async () => {
 
 /**
  * Identifies whether current Pull Request is mergeable.
- * @param {PullRequest} pullRequest - Pull Request object
+ * @param {PullRequest} pullRequest Pull Request object
+ * @return {boolean} is Pull Request mergeable or not
  */
 function isPullRequestMergeable(pullRequest) {
   // more about `mergeable` status
@@ -79,7 +80,8 @@ function isPullRequestMergeable(pullRequest) {
 
 /**
  * Performs dry-run merge and posts a result comment on PR.
- * @param {PullRequest} pullRequest - Pull Request object
+ * @param {PullRequest} pullRequest Pull Request object
+ * @return {string} Debug info about merge (mergeability, commits, etc.)
  */
 function constructMergeDebugInfo(pullRequest) {
   const commits = '';
